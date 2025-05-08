@@ -36,6 +36,7 @@ end
 
 i = 0
 target = ARGV[0].to_i
+time_connected = nil
 
 sky.on_raw_message do |msg|
   i += 1
@@ -50,4 +51,7 @@ end
 sky.connect
 GC.start
 
+time_finished = Time.now
+
+puts "Estimated processing speed: #{sprintf('%.1f', target / (time_finished - time_connected))} evt/s"
 puts "GC stats: #{GC.stat.inspect}"
