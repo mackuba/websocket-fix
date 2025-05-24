@@ -6,9 +6,15 @@ require 'bundler/setup'
 require 'skyfall'
 
 module Skyfall
+  class Firehose
+    def build_websocket_client(url)
+      Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }, binary_data_format: :array })
+    end
+  end
+
   class FastFirehose < Firehose
     def build_websocket_client(url)
-      Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }, binary_data_format: :string })
+      Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }})
     end
 
     def handle_message(msg)
