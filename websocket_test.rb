@@ -6,19 +6,13 @@ require 'bundler/setup'
 require 'skyfall'
 
 module Skyfall
-  class Firehose
+  class OldFirehose < Firehose
     def build_websocket_client(url)
       Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }, binary_data_format: :array })
     end
-  end
-
-  class FastFirehose < Firehose
-    def build_websocket_client(url)
-      Faye::WebSocket::Client.new(url, nil, { headers: { 'User-Agent' => user_agent }})
-    end
 
     def handle_message(msg)
-      data = msg.data
+      data = msg.data.pack('C*')
       @handlers[:raw_message]&.call(data)
 
       if @handlers[:message]
@@ -34,10 +28,10 @@ end
 
 if ARGV[1] == '-f'
   puts "Running in FAST mode:"
-  sky = Skyfall::FastFirehose.new('bsky.network', :subscribe_repos, 1)
-else
-  puts "Running in normal mode:"
   sky = Skyfall::Firehose.new('bsky.network', :subscribe_repos, 1)
+else
+  puts "Running in old (slow) mode:"
+  sky = Skyfall::OldFirehose.new('bsky.network', :subscribe_repos, 1)
 end
 
 i = 0
